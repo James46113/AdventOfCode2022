@@ -1,4 +1,5 @@
 lines = [line.strip() for line in open("Day#7input.txt", "r").readlines()]
+"""
 currentDir = ""
 parentDir = ""
 currentPath = ""
@@ -61,7 +62,32 @@ for line in lines:
             #print("currentDir:", currentDir)
             #print("currentPath:", currentPath)
             #print("parentDir:", parentDir)
+            try:if line.split(" ")[1] == "cd":
+            if line.split(" ")[-1] == "..":
+                currentPath = "|".join(currentPath.split("|")[:-2]) + "|"
+            else:
+                currentPath += line.split(" ")[-1] + "|"
+            currentDir = currentPath.split("|")[-2]
+            
+            if currentDir == "/":
+                currentDir = "root"
+
+            if len(currentPath.split("|")) >= 3:
+                if currentPath.split("|")[-3] == "/":
+                    parentDir = "root"
+                else:
+                    parentDir = currentPath.split("|")[-3]
+            else:
+                parentDir = "skip"
+            #print("currentDir:", currentDir)
+            #print("currentPath:", currentPath)
+            #print("parentDir:", parentDir)
             try:
+                exec(f"{currentDir} == False")
+            except NameError:
+                exec(f"{currentDir} = Folder('{currentDir}')")
+                exec(f"folders.append({currentDir})")
+                #pr
                 exec(f"{currentDir} == False")
             except NameError:
                 exec(f"{currentDir} = Folder('{currentDir}')")
@@ -82,3 +108,28 @@ for fold in folders:
         #print(fold.get_total_size())
         count += 1
 print(count)
+"""
+from os import mkdir, getcwd
+from os.path import join
+currentPath= ""
+for line in lines:
+    if currentPath == "dir":
+        print("dir")
+        try:
+            if currentPath == "//":
+                currentPath = "/"
+            if currentPath != "/":
+                print(currentPath)
+                mkdir(getcwd() + "/filesystem" + join(currentPath, line[4:].strip()))
+            else:
+                mkdir(join(getcwd() + "/filesystem"))
+        except FileExistsError as e:
+            print(e)
+        except Exception as e:
+            print(e)
+    if line.split(" ")[1] == "cd":
+        if line.split(" ")[-1] == "..":
+            currentPath = "/".join(currentPath.split("/")[:-2])
+        else:
+            currentPath += line.split(" ")[-1] + "/"
+    print(currentPath)
