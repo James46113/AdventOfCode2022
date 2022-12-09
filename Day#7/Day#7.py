@@ -109,27 +109,44 @@ for fold in folders:
         count += 1
 print(count)
 """
-from os import mkdir, getcwd
+from os import mkdir, getcwd, walk
 from os.path import join
+import sys
+sys.setrecursionlimit(9999)
+mkdir(join(getcwd(), "filesystem"))
 currentPath= ""
 for line in lines:
-    if currentPath == "dir":
-        print("dir")
-        try:
-            if currentPath == "//":
-                currentPath = "/"
-            if currentPath != "/":
-                print(currentPath)
-                mkdir(getcwd() + "/filesystem" + join(currentPath, line[4:].strip()))
-            else:
-                mkdir(join(getcwd() + "/filesystem"))
-        except FileExistsError as e:
-            print(e)
-        except Exception as e:
-            print(e)
-    if line.split(" ")[1] == "cd":
+    print(line)
+    if line[:3] == "dir":
+        if currentPath == "//": currentPath = "/"
+        mkdir(getcwd() + "/filesystem/" + join(currentPath, line[4:].strip()))
+    elif line.split(" ")[1] == "cd":
+        print("in cd")
         if line.split(" ")[-1] == "..":
-            currentPath = "/".join(currentPath.split("/")[:-2])
+            currentPath = "/".join(currentPath.split("/")[:-2]) + "/"
         else:
             currentPath += line.split(" ")[-1] + "/"
-    print(currentPath)
+    elif line.split(" ")[1] == "ls": pass
+    else:
+        print(currentPath)
+        with open(f"{getcwd()}/filesystem{currentPath}{line.split(' ')[0]}", "w"):
+            pass
+
+    #print(currentPath)
+dirs = [directory for directory in walk("filesystem")]
+big = 0
+def get_size(data):
+    global big
+    total = 0
+    path = data[0]
+    curr_dirs = data[1]
+    curr_files = data[2]
+    for curr_dir in curr_dirs:
+        total += get_size(path + "/" + curr_dir)
+    for file in curr_files:
+        total += int(file)
+    if total > 10000:
+        big += 1
+    return total
+
+print(get_size(dirs[0]))
