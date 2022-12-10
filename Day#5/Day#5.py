@@ -53,7 +53,6 @@ for line in [line.strip() for line in open("Day#5input.txt", "r").readlines()]:
     move(count=count, source=stacks[source], destination=stacks[destination], one_at_a_time=False)
     print(count, source, destination)
     printStacks()
-    #input()
 
 finalResult = ""
 for stack in stacks:
