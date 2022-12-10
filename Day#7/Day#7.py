@@ -24,7 +24,7 @@ for line in lines:
 
 dir_sizes = []
 size_of_small_dirs = 0
-def get_size(path: str):
+def get_size(path: str) -> int:
     global size_of_small_dirs, dir_sizes
     size = 0
     contents = listdir(f"{getcwd()}/{path}")
