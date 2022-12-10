@@ -1,152 +1,52 @@
-lines = [line.strip() for line in open("Day#7input.txt", "r").readlines()]
-"""
-currentDir = ""
-parentDir = ""
-currentPath = ""
-inLS = False
-
-class Folder:
-    def __init__(self, name) -> None:
-        self.folders = []
-        self.files = []
-        self.name = name
-    
-    def add_folder(self, child):
-        self.folders.append(child)
-        #print(self.folders)
-
-    def add_file(self, size, file):
-        self.files.append([file, int(size)])
-
-    def get_total_size(self):
-        total = 0
-        print(self in self.folders)
-        #try:
-        #    self.folders.remove(self)
-        #except ValueError:
-        #    pass
-        for file in self.files:
-            total += file[1]
-        print(len(self.folders))
-        for folder in self.folders:
-            total += folder.get_total_size()
-        return total
-
-    def __str__(self):
-        folders = ""
-        for folder in self.folders:
-            folders += (str(folder) + ", ")   
-        return "self: " + self.name + "\n" + "folders: " + folders
-
-folders = []
-
-for line in lines:
-    if line[0] == "$":
-        if line.split(" ")[1] == "cd":
-            if line.split(" ")[-1] == "..":
-                currentPath = "|".join(currentPath.split("|")[:-2]) + "|"
-            else:
-                currentPath += line.split(" ")[-1] + "|"
-            currentDir = currentPath.split("|")[-2]
-            
-            if currentDir == "/":
-                currentDir = "root"
-
-            if len(currentPath.split("|")) >= 3:
-                if currentPath.split("|")[-3] == "/":
-                    parentDir = "root"
-                else:
-                    parentDir = currentPath.split("|")[-3]
-            else:
-                parentDir = "skip"
-            #print("currentDir:", currentDir)
-            #print("currentPath:", currentPath)
-            #print("parentDir:", parentDir)
-            try:if line.split(" ")[1] == "cd":
-            if line.split(" ")[-1] == "..":
-                currentPath = "|".join(currentPath.split("|")[:-2]) + "|"
-            else:
-                currentPath += line.split(" ")[-1] + "|"
-            currentDir = currentPath.split("|")[-2]
-            
-            if currentDir == "/":
-                currentDir = "root"
-
-            if len(currentPath.split("|")) >= 3:
-                if currentPath.split("|")[-3] == "/":
-                    parentDir = "root"
-                else:
-                    parentDir = currentPath.split("|")[-3]
-            else:
-                parentDir = "skip"
-            #print("currentDir:", currentDir)
-            #print("currentPath:", currentPath)
-            #print("parentDir:", parentDir)
-            try:
-                exec(f"{currentDir} == False")
-            except NameError:
-                exec(f"{currentDir} = Folder('{currentDir}')")
-                exec(f"folders.append({currentDir})")
-                #pr
-                exec(f"{currentDir} == False")
-            except NameError:
-                exec(f"{currentDir} = Folder('{currentDir}')")
-                exec(f"folders.append({currentDir})")
-                #print(f"set {currentDir}")
-            if parentDir != "skip":
-                if parentDir != currentDir:
-                    exec(f"{parentDir}.add_folder({currentDir})")
-            #print(root)
-    elif line[:3] != "dir":
-        print(line)
-        exec(f"{currentDir}.add_file(*line.split(' '))")
-
-count = 0
-print(len(folders))
-for fold in folders:
-    if fold.get_total_size() >= 10000:
-        #print(fold.get_total_size())
-        count += 1
-print(count)
-"""
-from os import mkdir, getcwd, walk
-from os.path import join
-import sys
-sys.setrecursionlimit(9999)
+from os import mkdir, getcwd, listdir, remove
+from os.path import join, isfile
+import shutil
+try:
+    shutil.rmtree(join(getcwd(), "filesystem"))
+except FileNotFoundError:
+    pass
 mkdir(join(getcwd(), "filesystem"))
+lines = [line.strip() for line in open("Day#7input.txt", "r").readlines()]
 currentPath= ""
 for line in lines:
-    print(line)
     if line[:3] == "dir":
         if currentPath == "//": currentPath = "/"
         mkdir(getcwd() + "/filesystem/" + join(currentPath, line[4:].strip()))
     elif line.split(" ")[1] == "cd":
-        print("in cd")
         if line.split(" ")[-1] == "..":
             currentPath = "/".join(currentPath.split("/")[:-2]) + "/"
         else:
             currentPath += line.split(" ")[-1] + "/"
     elif line.split(" ")[1] == "ls": pass
     else:
-        print(currentPath)
         with open(f"{getcwd()}/filesystem{currentPath}{line.split(' ')[0]}", "w"):
             pass
 
-    #print(currentPath)
-dirs = [directory for directory in walk("filesystem")]
-big = 0
-def get_size(data):
-    global big
-    total = 0
-    path = data[0]
-    curr_dirs = data[1]
-    curr_files = data[2]
-    for curr_dir in curr_dirs:
-        total += get_size(path + "/" + curr_dir)
-    for file in curr_files:
-        total += int(file)
-    if total > 10000:
-        big += 1
-    return total
+dir_sizes = []
+size_of_small_dirs = 0
+def get_size(path: str):
+    global size_of_small_dirs, dir_sizes
+    size = 0
+    contents = listdir(f"{getcwd()}/{path}")
+    files = [file for file in contents if isfile(join(f"{getcwd()}/{path}", file))]
+    dirs = [directory for directory in contents if not isfile(join(f"{getcwd()}/{path}", directory))]
+    for directory in dirs:
+        size += get_size(path + "/" + directory)
+    for file in files:
+        size += int(file)
+    if size <= 100000:
+        size_of_small_dirs += size
+    dir_sizes.append(size)
+    return size
 
-print(get_size(dirs[0]))
+unused_space = 70000000 - get_size("filesystem")
+print("ANSWER TO PART 1:", size_of_small_dirs)
+diff = 70000000
+closest = 0
+for dir_size in dir_sizes:
+    #print(30000000 - unused_space - dir_size)
+    temp_dif = (unused_space + dir_size) - 30000000
+    if 0 <= temp_dif < diff:
+        diff = temp_dif
+        closest = dir_size
+print("ANSWER TO PART 2:", closest)
