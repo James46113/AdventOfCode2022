@@ -21,6 +21,6 @@ with open("Day#1input.txt", "r") as f:
                     else:
                         third_high = temp_total
                 temp_total=0
-                print(highest + sec_high + third_high)
         except Exception:
             break
+print(highest + sec_high + third_high)
