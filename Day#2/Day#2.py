@@ -33,9 +33,3 @@ for line in lines:
         score += 3
         
 print(score)
-# A = rock
-# B = paper
-# C = scissors
-# X = rock
-# Y = paper
-# Z = scissors
