@@ -13,6 +13,9 @@ for move in moves:
         hx -= int(move[1])
     elif move[0] == "R":
         hx += int(move[1])
-    if -1 > hx - tx or hx - tx > 1:
-        pass
-    print(move, hx, hy)
+    if -1 > hx - tx:
+        tx -= 1
+    elif hx - tx > 1:
+        tx += 1
+    print(move, hx, hy, tx, ty)
+    input()
