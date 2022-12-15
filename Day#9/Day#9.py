@@ -57,6 +57,7 @@ def move_tail():
 #assert move_tail() == [1, 2]
 #hy -= 2
 #assert move_tail() == [0, 1]
+correct_moves = [(3, 0), ()]
 print(test_moves)
 for test_move in test_moves:
     print(test_move, hx, hy, tx, ty)
